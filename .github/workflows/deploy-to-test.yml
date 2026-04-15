@@ -1,0 +1,30 @@
+name: Deploy to Test Repo
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Dev Repo
+        uses: actions/checkout@v4
+
+      - name: Install rsync
+        run: sudo apt-get update && sudo apt-get install -y rsync
+
+      - name: Push to Test_ADAP Repo
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "actions@github.com"
+
+          git clone https://x-access-token:${{ secrets.TARGET_REPO_TOKEN }}@github.com/Sherikk786/Test_ADAP.git target-repo
+
+          rsync -av --delete --exclude='.git' ./ target-repo/
+
+          cd target-repo
+          git checkout -b main || git checkout main
+          git add .
+          git commit -m "Deploy from Dev_ADAP" || echo "No changes to commit"
+          git push
