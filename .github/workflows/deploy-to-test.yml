@@ -13,17 +13,9 @@ jobs:
 
       - name: Push to Test_ADAP (Mirror)
         run: |
+
           git config --global user.name "github-actions"
+
           git config --global user.email "actions@github.com"
 
-          # Remove existing remote if exists
-          git remote remove test || true
-
-          # Add remote WITH token
-          git remote add test https://x-access-token:${{ secrets.TARGET_REPO_TOKEN }}@github.com/Sherikk786/Test_ADAP.git
-
-          # Verify remote (for debugging)
-          git remote -v
-
-          # Push mirror
-          git push test --mirror
+          git push https://x-access-token:${{ secrets.TARGET_REPO_TOKEN }}@github.com/Sherikk786/Test_ADAP.git --mirror
