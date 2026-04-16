@@ -22,6 +22,7 @@ jobs:
           rm -rf cypress/screenshots
           rm -rf cypress/results
           rm -rf cypress/reports
+          rm -rf .github
 
       - name: Initialize fresh repo
         run: |
