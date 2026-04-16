@@ -11,25 +11,11 @@ jobs:
       - name: Checkout Dev Repo
         uses: actions/checkout@v4
 
-      - name: Install rsync
-        run: sudo apt-get update && sudo apt-get install -y rsync
-
-      - name: Clone Test Repo
+      - name: Push to Test_ADAP (Mirror)
         run: |
-          git clone https://x-access-token:${{ secrets.TARGET_REPO_TOKEN }}@github.com/Sherikk786/Test_ADAP.git target-repo
+          git config --global user.name "github-actions"
+          git config --global user.email "actions@github.com"
 
-      - name: Copy Files
-        run: |
-          rsync -av --delete \
-          --exclude='.git' \
-          ./ target-repo/
-
-      - name: Push to Test Repo
-        run: |
-          cd target-repo
-          git config user.name "github-actions"
-          git config user.email "actions@github.com"
-
-          git add .
-          git commit -m "Deploy from Dev_ADAP" || echo "No changes to commit"
-          git push origin main
+          git remote add test https://x-access-token:${{ secrets.TARGET_REPO_TOKEN }}@github.com/Sherikk786/Test_ADAP.git
+          
+          git push test --mirror
