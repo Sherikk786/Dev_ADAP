@@ -1,3 +1,37 @@
+# name: Deploy to Test Repo
+
+# on:
+#   workflow_dispatch:
+
+# jobs:
+#   deploy:
+#     runs-on: ubuntu-latest
+
+#     steps:
+#       - name: Checkout Dev Repo
+#         uses: actions/checkout@v4
+#         with:
+#           persist-credentials: false
+#           fetch-depth: 0   # full repo
+
+#       - name: Clean unnecessary files
+#         run: |
+#           rm -rf node_modules
+#           rm -rf .git
+
+#       - name: Initialize fresh repo
+#         run: |
+#           git init
+#           git config user.name "github-actions"
+#           git config user.email "actions@github.com"
+
+#           git add .
+#           git commit -m "Fresh deploy"
+
+#       - name: Push to Test_ADAP
+#         run: |
+#           git branch -M main
+#           git push https://x-access-token:${{ secrets.TARGET_REPO_TOKEN }}@github.com/Sherikk786/Test_ADAP.git main --force
 name: Deploy to Test Repo
 
 on:
@@ -12,23 +46,37 @@ jobs:
         uses: actions/checkout@v4
         with:
           persist-credentials: false
-          fetch-depth: 0   # full repo
+          fetch-depth: 0
 
       - name: Clean unnecessary files
         run: |
           rm -rf node_modules
           rm -rf .git
+          rm -rf cypress/videos
+          rm -rf cypress/screenshots
+          rm -rf cypress/results
+          rm -rf cypress/reports
 
       - name: Initialize fresh repo
         run: |
           git init
           git config user.name "github-actions"
           git config user.email "actions@github.com"
-
           git add .
-          git commit -m "Fresh deploy"
+          git commit -m "Fresh deploy from Dev_ADAP"
 
       - name: Push to Test_ADAP
         run: |
           git branch -M main
           git push https://x-access-token:${{ secrets.TARGET_REPO_TOKEN }}@github.com/Sherikk786/Test_ADAP.git main --force
+
+      - name: Wait for Test_ADAP to be ready
+        run: sleep 10
+
+      - name: Trigger Test Workflow in Test_ADAP
+        run: |
+          curl -X POST \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${{ secrets.TARGET_REPO_TOKEN }}" \
+            https://api.github.com/repos/Sherikk786/Test_ADAP/actions/workflows/run-tests.yml/dispatches \
+            -d '{"ref":"main"}'
